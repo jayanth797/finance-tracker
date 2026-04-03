@@ -42,3 +42,21 @@ This project maintains a highly modular layout optimized for readability and sca
 
 ## API Documentation
 The fully interactive OpenAPI integration is actively deployed by FastAPI when spinning up the project. Once the server runs, visit `http://127.0.0.1:8000/docs` to examine the full API ecosystem or manually authorize token generations.
+
+## Deployment (Render)
+
+This application is ready to be deployed on Render (or any similar PaaS).
+
+1. **Build Command**: 
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **Start Command**:
+   ```bash
+   bash start.sh
+   ```
+   *Alternatively, you can use: `uvicorn main:app --host 0.0.0.0 --port $PORT`*
+
+### Post-Deployment
+- The SQLite database will be automatically created on startup in the root directory.
+- Visit `https://<your-render-app-url>/docs` to view and interact with the API documentation in production.

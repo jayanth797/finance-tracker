@@ -16,6 +16,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
+from fastapi.middleware.cors import CORSMiddleware
+
 from database.connection import Base, engine
 from routes.analytics import router as analytics_router
 from routes.transactions import router as transactions_router
@@ -48,6 +50,15 @@ app = FastAPI(
     },
     license_info={"name": "MIT"},
     lifespan=lifespan,
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
