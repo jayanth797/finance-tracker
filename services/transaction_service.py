@@ -24,7 +24,7 @@ from schemas.transaction import (
 
 def create_transaction(db: Session, payload: TransactionCreate) -> Transaction:
     """Insert a new transaction row and return the persisted object."""
-    data = payload.model_dump(by_alias=False)
+    data = payload.dict(by_alias=False)
     # Pydantic field is `transaction_type`; ORM column is `type`
     data["type"] = data.pop("transaction_type")
     tx = Transaction(**data)
@@ -78,7 +78,7 @@ def update_transaction(
     db: Session, tx: Transaction, payload: TransactionUpdate
 ) -> Transaction:
     """Partially update a transaction with only the provided fields."""
-    update_data = payload.model_dump(exclude_unset=True, by_alias=False)
+    update_data = payload.dict(exclude_unset=True, by_alias=False)
     # Map Pydantic's transaction_type → ORM's type column
     if "transaction_type" in update_data:
         update_data["type"] = update_data.pop("transaction_type")

@@ -12,7 +12,7 @@ Design note:
 from datetime import date as DateType
 from decimal import Decimal
 from typing import Literal, Optional, Generic, TypeVar
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, validator
 
 T = TypeVar("T")
 
@@ -31,20 +31,21 @@ class TransactionBase(BaseModel):
     `populate_by_name=True` accepts both the alias ("type") and the
     Python attribute name ("transaction_type") during validation.
     """
-    model_config = {"from_attributes": True, "populate_by_name": True}
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
     amount: Decimal = Field(..., description="Transaction amount (must be > 0)")
     transaction_type: Literal["income", "expense"] = Field(
         ...,
         alias="type",
-        serialization_alias="type",
         description="income or expense",
     )
     category: str = Field(..., min_length=1, max_length=100, description="e.g. Salary, Food")
     date: DateType = Field(..., description="Transaction date (YYYY-MM-DD)")
     notes: Optional[str] = Field(None, max_length=500, description="Optional notes")
 
-    @field_validator("amount")
+    @validator("amount")
     @classmethod
     def amount_must_be_positive(cls, value: Decimal) -> Decimal:
         if value <= 0:
@@ -64,19 +65,20 @@ class TransactionUpdate(BaseModel):
     Payload for partially updating a transaction (PATCH semantics).
     All fields are optional — only provided fields are applied.
     """
-    model_config = {"from_attributes": True, "populate_by_name": True}
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
     amount: Optional[Decimal] = Field(None, description="New amount (must be > 0)")
     transaction_type: Optional[Literal["income", "expense"]] = Field(
         None,
         alias="type",
-        serialization_alias="type",
     )
     category: Optional[str] = Field(None, min_length=1, max_length=100)
     date: Optional[DateType] = None
     notes: Optional[str] = Field(None, max_length=500)
 
-    @field_validator("amount")
+    @validator("amount")
     @classmethod
     def amount_must_be_positive(cls, value: Optional[Decimal]) -> Optional[Decimal]:
         if value is not None and value <= 0:
@@ -116,10 +118,11 @@ class MonthlyBreakdown(BaseModel):
 
 
 class CategoryBreakdown(BaseModel):
-    model_config = {"populate_by_name": True}
+    class Config:
+        allow_population_by_field_name = True
 
     category: str
-    transaction_type: str = Field(..., alias="type", serialization_alias="type")
+    transaction_type: str = Field(..., alias="type")
     total: Decimal
     count: int
 
